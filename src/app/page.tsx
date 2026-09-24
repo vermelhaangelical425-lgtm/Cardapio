@@ -147,7 +147,7 @@ export default function Home() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {products.map(product => (
-            <div key={product.id} onClick={() => setSelectedProduct(product)} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 cursor-pointer hover:shadow-md transition">
+            <div key={product.id} onClick={() => { if(product.available) setSelectedProduct(product) }} className={`bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 transition ${product.available ? 'cursor-pointer hover:shadow-md' : 'opacity-60 cursor-not-allowed grayscale'}`}>
               <img src={product.image} alt={product.name} className="w-24 h-24 object-cover rounded-lg" />
               <div className="flex flex-col flex-1 justify-between">
                 <div>
@@ -155,16 +155,16 @@ export default function Home() {
                   <p className="text-sm text-gray-500">{product.category}</p>
                 </div>
                 <div className="flex justify-between items-end">
-                  <span className="font-bold text-red-600">
-                    R$ {product.price.toFixed(2).replace('.', ',')}
+                  <span className={`font-bold ${product.available ? 'text-red-600' : 'text-gray-500'}`}>
+                    {product.available ? `R$ ${product.price.toFixed(2).replace('.', ',')}` : 'Esgotado'}
                   </span>
                   <button 
                     onClick={(e) => { 
                       e.stopPropagation(); 
-                      if(settings.isOpen) addItem({ ...product, quantity: 1 }) 
+                      if(settings.isOpen && product.available) addItem({ ...product, quantity: 1 }) 
                     }}
-                    disabled={!settings.isOpen}
-                    className={`p-2 rounded-lg transition ${settings.isOpen ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                    disabled={!settings.isOpen || !product.available}
+                    className={`p-2 rounded-lg transition ${settings.isOpen && product.available ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
                   >
                     <Plus size={20} />
                   </button>
