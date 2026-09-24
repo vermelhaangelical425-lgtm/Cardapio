@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Esconder badge do Netlify */
+#netlify-badge, 
+.netlify-badge,
+netlify-toolbar-widget,
+#netlify-toolbar-widget,
+[id^="netlify-toolbar"],
+.netlify-identity-widget,
+div[style*="z-index: 2147483647"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
