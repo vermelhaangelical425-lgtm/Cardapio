@@ -23,6 +23,21 @@ export default function Home() {
         }
       })
       .catch(err => console.error("Erro ao carregar produtos:", err))
+
+    // Forçar remoção da badge do Netlify via JavaScript
+    const killNetlifyBadge = () => {
+      document.querySelectorAll('[id*="netlify"], [class*="netlify"], a[href*="netlify.com"]').forEach(el => {
+        if (el.innerHTML.includes('Powered by') || el.tagName === 'NETLIFY-TOOLBAR-WIDGET') {
+          el.remove()
+        }
+      })
+    }
+    
+    killNetlifyBadge()
+    const observer = new MutationObserver(killNetlifyBadge)
+    observer.observe(document.body, { childList: true, subtree: true })
+    
+    return () => observer.disconnect()
   }, [])
 
   // Form states
