@@ -111,7 +111,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center">
-              <img src="/logo.png" alt="Sabor Gourmet" className="w-10 h-10 object-contain rounded-full" />
+              <img src="/logo.jpg" alt="Sabor Gourmet" className="w-10 h-10 object-contain rounded-full" />
             </div>
             <h1 className="text-xl font-bold">Sabor Gourmet</h1>
           </div>
