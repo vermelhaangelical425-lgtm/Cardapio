@@ -2,7 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Lanchonete da Sônia',
+  title: 'Sabor Gourmet',
   description: 'Cardápio digital',
 }
 
