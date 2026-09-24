@@ -12,17 +12,23 @@ export default function Home() {
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'details' | 'payment'>('cart')
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
+  const [settings, setSettings] = useState<any>({ isOpen: true, closedMessage: '' })
   
-  // Fetch products from database
+  // Fetch products and settings from database
   useEffect(() => {
     fetch('/api/produtos', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if(Array.isArray(data)) {
-          setProducts(data)
-        }
+        if(Array.isArray(data)) setProducts(data)
       })
       .catch(err => console.error("Erro ao carregar produtos:", err))
+
+    fetch('/api/settings', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if(data) setSettings(data)
+      })
+      .catch(err => console.error("Erro ao carregar configurações:", err))
 
     // Forçar remoção absoluta da badge do Netlify via JavaScript
     const killNetlifyBadge = () => {
@@ -73,7 +79,7 @@ export default function Home() {
     if (!nome || !endereco || !pagamento) return alert('Preencha os campos obrigatórios')
     if (pagamento === 'DINHEIRO' && precisaTroco && !trocoPara) return alert('Informe para quanto é o troco')
 
-    const numeroAdmin = '5598985298290' // Esse número virá do painel admin depois
+    const numeroAdmin = settings.whatsappNumber || '5598985298290'
     
     let itensStr = items.map(item => `• ${item.quantity}x ${item.name} — R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}`).join('\n')
     
@@ -131,6 +137,12 @@ export default function Home() {
 
       {/* CARDÁPIO */}
       <main className="max-w-4xl mx-auto p-4 mt-4">
+        {!settings.isOpen && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-center">
+            <strong className="font-bold block text-lg mb-1">Estamos fechados no momento!</strong>
+            <span className="block sm:inline">{settings.closedMessage || 'Voltaremos em breve.'}</span>
+          </div>
+        )}
         <h2 className="text-2xl font-bold mb-6">Nosso Cardápio</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -147,8 +159,12 @@ export default function Home() {
                     R$ {product.price.toFixed(2).replace('.', ',')}
                   </span>
                   <button 
-                    onClick={(e) => { e.stopPropagation(); addItem({ ...product, quantity: 1 }) }}
-                    className="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition"
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      if(settings.isOpen) addItem({ ...product, quantity: 1 }) 
+                    }}
+                    disabled={!settings.isOpen}
+                    className={`p-2 rounded-lg transition ${settings.isOpen ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
                   >
                     <Plus size={20} />
                   </button>
@@ -172,10 +188,16 @@ export default function Home() {
               <div className="flex justify-between items-center">
                 <span className="text-2xl font-bold text-red-600">R$ {selectedProduct.price.toFixed(2).replace('.', ',')}</span>
                 <button 
-                  onClick={() => { addItem({ ...selectedProduct, quantity: 1 }); setSelectedProduct(null) }}
-                  className="bg-red-600 text-white px-5 py-2 rounded-lg font-bold flex gap-2 items-center hover:bg-red-700 transition"
+                  onClick={() => {
+                    if (settings.isOpen) {
+                      addItem({ ...selectedProduct, quantity: 1 })
+                      setSelectedProduct(null)
+                    }
+                  }}
+                  disabled={!settings.isOpen}
+                  className={`px-5 py-2 rounded-lg font-bold flex gap-2 items-center transition ${settings.isOpen ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
                 >
-                  <Plus size={20} /> Adicionar
+                  <Plus size={20} /> {settings.isOpen ? 'Adicionar' : 'Fechado'}
                 </button>
               </div>
             </div>
@@ -281,11 +303,11 @@ export default function Home() {
                       
                       <div className="bg-white p-3 rounded border flex justify-between items-center mb-2">
                         <div>
-                          <p className="text-xs text-gray-500">Chave PIX (E-mail)</p>
-                          <p className="font-bold break-all">Soniasouzas1509@gmail.com</p>
-                          <p className="text-xs text-gray-500">Sônia</p>
+                          <p className="text-xs text-gray-500">Chave PIX</p>
+                          <p className="font-bold break-all">{settings.pixKey || 'Soniasouzas1509@gmail.com'}</p>
+                          <p className="text-xs text-gray-500">{settings.pixName || 'Sônia'}</p>
                         </div>
-                        <button className="text-blue-600 flex flex-col items-center ml-2" onClick={() => {navigator.clipboard.writeText('Soniasouzas1509@gmail.com'); alert('Chave copiada!')}}>
+                        <button className="text-blue-600 flex flex-col items-center ml-2" onClick={() => {navigator.clipboard.writeText(settings.pixKey || 'Soniasouzas1509@gmail.com'); alert('Chave copiada!')}}>
                           <Copy size={20} />
                           <span className="text-[10px]">Copiar</span>
                         </button>
