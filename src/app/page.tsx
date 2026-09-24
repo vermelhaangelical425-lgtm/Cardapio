@@ -15,7 +15,7 @@ export default function Home() {
   
   // Fetch products from database
   useEffect(() => {
-    fetch('/api/produtos')
+    fetch('/api/produtos', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if(Array.isArray(data)) {
